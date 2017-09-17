@@ -1,0 +1,80 @@
+Cmp-Mod V01 Created by CvPcb (22-Jun-2014 BZR 4027)-stable date = mer. 04 nov. 2015 11:53:12 CET
+
+BeginCmp
+TimeStamp = /5639CB7D;
+Reference = C1;
+ValeurCmp = 100n;
+IdModule  = SM0805;
+EndCmp
+
+BeginCmp
+TimeStamp = /5639CAB4;
+Reference = P1;
+ValeurCmp = CONN_2;
+IdModule  = Tom_bornier2;
+EndCmp
+
+BeginCmp
+TimeStamp = /5639C3E8;
+Reference = P2;
+ValeurCmp = CONN_2;
+IdModule  = Tom_bornier2;
+EndCmp
+
+BeginCmp
+TimeStamp = /5639C3A9;
+Reference = P3;
+ValeurCmp = CONN_2;
+IdModule  = Tom_bornier2;
+EndCmp
+
+BeginCmp
+TimeStamp = /5639C3D3;
+Reference = P4;
+ValeurCmp = CONN_2;
+IdModule  = Tom_bornier2;
+EndCmp
+
+BeginCmp
+TimeStamp = /5639C3F7;
+Reference = P5;
+ValeurCmp = CONN_2;
+IdModule  = Tom_bornier2;
+EndCmp
+
+BeginCmp
+TimeStamp = /5639C406;
+Reference = P6;
+ValeurCmp = CONN_1;
+IdModule  = Tom_1pin;
+EndCmp
+
+BeginCmp
+TimeStamp = /5639C939;
+Reference = P7;
+ValeurCmp = CONN_1;
+IdModule  = Tom_1pin;
+EndCmp
+
+BeginCmp
+TimeStamp = /5639C415;
+Reference = P8;
+ValeurCmp = CONN_1;
+IdModule  = Tom_1pin;
+EndCmp
+
+BeginCmp
+TimeStamp = /5639C952;
+Reference = P9;
+ValeurCmp = CONN_1;
+IdModule  = Tom_1pin;
+EndCmp
+
+BeginCmp
+TimeStamp = /5639C920;
+Reference = U1;
+ValeurCmp = ADM3488;
+IdModule  = SO8N;
+EndCmp
+
+EndListe
