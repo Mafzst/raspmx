@@ -2,10 +2,15 @@
 *         RaspMx - console lumière             *
 *                                              *
 * Fichier  : arduino.ino                       *
-* Date     : 10/03/16                          *
+* Date     : 25/03/16                          *
 *                                              *
-* Fichier code pour l'Arduino : réception des  *
+* Fichier code pour l'Arduino :                *
+* réception des                                *
 * trames SPI et traitement                     *
+* Modification des valeur de paramètres de la  *
+* console en fonction des valuer DMX           *
+* Actualisation des valeurs du bus DMX en      *        
+* réaction à un changement de curseur console  *
 * Emission acquitement à faire                 *
 ************************************************/
 
@@ -24,9 +29,13 @@ const word ADDR_GPIO = 0xFFD0;
 const word ADDR_DMX = 0x0000;
 
 
-byte buf [100], tbuf[100], buffco[8];    // Buffers
-volatile byte pos, posco;            // Curseur de lecture
-volatile boolean process_it;  // Etat de l'IT SPI
+
+
+byte buf [100], tbuf[100];    // Buffers
+// Structure de trame console
+byte buffco[] = {0xf0, 0x43, 0x10, 0x3d, 0x08, 0x01, 0x00, 0x00, 0xf7};
+volatile byte pos;        // Curseur de lecture
+volatile boolean process_it;      // Etat de l'IT SPI
 volatile boolean console_process; // Etat IT console
 
 struct spi_frame {            // Strcuture trame SPI
@@ -37,26 +46,22 @@ struct spi_frame {            // Strcuture trame SPI
   byte args[];                // Arguements de l'opération            
 } rx_frame, tx_frame;         // Trame reçue, trame à émettre
 
-int PIN = 2;
-char channel, value;
+char channel, value;          // Variables bus DMX
 
 // Fonction de paramétrage
 void setup (void)
 {
-  Serial.begin (38400);   // debugging
+  Serial.begin (38400);   // Liaison série console
 
   // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
   
-  pinMode(PIN, OUTPUT);
-  
   // SPI en mode esclave
   SPCR |= _BV(SPE);
   
-  pos = 0;             // Buffer de recpetion vide
-  process_it = false;  //P Pas d'IT en cours
-  posco = 0;
-  console_process = false;
+  pos = 0;                 // Buffer de recpetion vide
+  process_it = false;      // Pas d'IT SPI
+  console_process = false; // Pas d'IT console
 
   // Ajout d'une IT sur SPI
   SPI.attachInterrupt();
@@ -81,7 +86,6 @@ ISR (SPI_STC_vect)
     // 0x00 suivi de 0x0A marque la fin de la trame
     if (c == '\n' && buf[pos - 2] == 0)
       process_it = true;  // Demande du traitement de l'IT
-      //digitalWrite(PIN, HIGH);
       
     } 
 }  // fin routine IT
@@ -89,31 +93,25 @@ ISR (SPI_STC_vect)
 // Boucle principale. Attente d'un traitement d'IT
 void loop (void)
 {
-  if (process_it)
+  if (process_it)         // IT SPI
     {    
       process_received(); // Appel de la fonction de traitement
       
       process_it = false; // Acquitement IT
       pos = 0;            // Buffer vidé
-    }
+    } // fin IT SPI
 
-   int i;
+   if (console_process) {            // IT console
+    DmxSimple.write(channel, value); // Mise à jour DMX
+    console_process = false;         // Acquitement
+   } // Fin IT console
+} // fin boucle principale
 
-   if (console_process) {
-    DmxSimple.write(channel, value);
-    console_process = false;
-   }
-}
-
-// Fonction de traitement de l'IT
+// Fonction de traitement de l'IT SPI
 int process_received (void)
 {
-  Serial.println("Recu !"); // Debug
-  
   // Vérification de l'adresse
   if(buf[0] != SLAVE_ADDR) {
-    Serial.print("Pas pour moi ;) ");
-    Serial.println(buf[0]);
     return 0;  // Autre esclave
   }
   
@@ -125,101 +123,60 @@ int process_received (void)
   rx_frame.addr = buf[0];    // Adresse esclave
   rx_frame.oppcode = buf[1]; // Code oppération
   rx_frame.param = param;    // Adresse du composant
-  Serial.println(param);     // Debug
   
   // Recupération des arguments
   for(int i = 4; i < pos - 2; i++) {
     rx_frame.args[i - 4] = buf[i];
-    //rx_frame.len++;
   }
   
   // Fonction de traitement des données
   resolve_fctn();
   
   return 1;
-}
+} // Fin traitement IT SPI
 
 // Fonction de traitement des données
 int resolve_fctn(void) {
   boolean error_unknown = false; // Pas d'erreur pour l'instant
   
-  // Pour test : Gestion des GPIO (allumer/etteindre)
-   if(rx_frame.param & MASK_GPIO == ADDR_GPIO && rx_frame.oppcode == 1) {
-     //byte pin = byte(rx_frame.param) & 0x0F; // Récupération du numéro de pin
-     
-     // Sélection de l'action à effectuer (allumer/eteindre/inconnu)
-     switch(rx_frame.args[0]) {
-       case 0:
-         digitalWrite(PIN, LOW);
-         break;
-       case 1:
-         digitalWrite(PIN, HIGH);
-         break;
-       default:
-         error_unknown = true;  // Il y a une erreur
-         break;
+   
+   // Gestion du bus DMX direct
+   if (rx_frame.param <= 512 && rx_frame.oppcode == 1) {
+     byte value = rx_frame.args[0];            // Récupération de la valeur
+     DmxSimple.write(rx_frame.param, value);   // Modification du bus (canal, valeur)
+     buffco[6] = rx_frame.param + 44;          // Actualisation trame console (offset AUX4)
+     buffco[7] = value / 2;                    // Actualisation console (valeur max 127)
+     int i;
+
+     for(i = 0; i < 9; i++)
+     {
+       Serial.write(buffco[i]);                // Envoi de la trame console
      }
    }
    
-   // Gestion du bus DMX direct
-   else if (rx_frame.param <= 512 && rx_frame.oppcode == 1) {
-     Serial.println("DMX process");            // Debug
-     byte value = rx_frame.args[0];            // Récupération de la valeur
-     Serial.println(value);                    // Debug
-     DmxSimple.write(rx_frame.param, value);   // Modification du bus (canal, valeur)
-   }
-   
-   // A FAIRE : Gestion des adresse console
-     
-   //Renvoi d'une trame
-   if(!error_unknown) {
-     tx_frame.addr = rx_frame.addr;
-     tx_frame.oppcode = rx_frame.oppcode + 0x70;
-     tx_frame.param = rx_frame.param;
-     tx_frame.args[0] = 0x00;
-     tx_frame.len = 7; 
-     
-     //send_response();          
- }
-}
+   // A FAIRE : Aquiter au Raspberry
+           
+ } // fin traitement données SPI
 
-// Fonction appellée par une IT interne
+// Fonction appellée par une IT interne sur Série
 void serialEvent() {
+  // Lecture en continu du heartbeat
   char oct = (char)Serial.read();
-  //Serial.println(oct);
-  
+
+  // Si pas octer d'heartbeat
   if(oct != 0xFFFFFFFE && !console_process) {
-    pos++;
-    Serial.println(oct, HEX);
-    if(pos == 7) {
-      channel = oct - 44;
+    pos++;                  // On compte les octets
+    if(pos == 7) {          // Le 7e est le canal
+      channel = oct - 44;   // Offset AUX4 à déclarer globalement
     }
-    if(pos == 8) {
-      value = oct * 2;
+    if(pos == 8) {          // Le 8e est la valeur
+      value = oct * 2;      // Valuer max 127 donc *2
     }
   }
 
+  // On est arrivé à la fin de la trame
   if(oct == 0xFFFFFFF7 && !console_process) {
-      console_process = true;
-      pos = 0;
+      console_process = true;  // On demande le traitement
+      pos = 0;                 // On repart à 0 pour le comptage suivant
   }
-}
-
-void send_response(void) {
-  SPI.begin();
-  
-  tbuf[0] = tx_frame.addr;
-  tbuf[1] = tx_frame.oppcode;
-  tbuf[2] = (tx_frame.param & 0xFF00) >> 8;
-  tbuf[3] = tx_frame.param & 0x00FF;
-  tbuf[4] = tx_frame.args[0];
-  tbuf[5] = 0;
-  tbuf[6] = 10;
-  
-  for(byte i = 0; i < tx_frame.len; i++) {
-    Serial.println(tbuf[i], HEX);
-    SPDR = byte(tbuf[i]);
-  }
-  
-  SPI.end();
 }
