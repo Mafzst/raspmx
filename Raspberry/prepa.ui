@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Prepa</class>
+ <widget class="QWidget" name="Prepa">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>450</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Editeur de préparation</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QLabel" name="lblTilt">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Vertical</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QLabel" name="lblShape">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Forme</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="cbTilt">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
+        <property name="text">
+         <string>En haut</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>En face</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>En bas</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QComboBox" name="cbPan">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
+        <property name="text">
+         <string>A droite</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Au centre</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>A gauche</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="lblPan">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Horizontal</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QComboBox" name="cbShape">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
+        <property name="text">
+         <string>Rond</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Etoile</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Toile araignée</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Pétales</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Hélice</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Grille</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>4 points</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Bulles</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Etoile</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Disque</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Signe du diable</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="lblColor">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Couleur</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QComboBox" name="cbColor">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
+        <property name="text">
+         <string>Blanc</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Rouge</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Bleu</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Vert</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Jaune</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Orange</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Rose</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Ciel</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Roi</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Violet</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Jaune/Orange</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Bleu/Rose</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="btnSend">
+     <property name="text">
+      <string>Envoyer</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
