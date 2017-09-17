@@ -2,7 +2,7 @@
 *         RaspMx - console lumière             *
 *                                              *
 * Fichier  : arduino.ino                       *
-* Date     : 27/12/15                          *
+* Date     : 10/03/16                          *
 *                                              *
 * Fichier code pour l'Arduino : réception des  *
 * trames SPI et traitement                     *
@@ -24,9 +24,10 @@ const word ADDR_GPIO = 0xFFD0;
 const word ADDR_DMX = 0x0000;
 
 
-byte buf [100], tbuf[100];    // Buffers
-volatile byte pos;            // Curseur de lecture
+byte buf [100], tbuf[100], buffco[8];    // Buffers
+volatile byte pos, posco;            // Curseur de lecture
 volatile boolean process_it;  // Etat de l'IT SPI
+volatile boolean console_process; // Etat IT console
 
 struct spi_frame {            // Strcuture trame SPI
   byte addr;                  // Adresse destinataire
@@ -37,12 +38,12 @@ struct spi_frame {            // Strcuture trame SPI
 } rx_frame, tx_frame;         // Trame reçue, trame à émettre
 
 int PIN = 2;
+char channel, value;
 
 // Fonction de paramétrage
 void setup (void)
 {
-  Serial.begin (9600);   // debugging
-  Serial.write("Setup OK");
+  Serial.begin (38400);   // debugging
 
   // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
@@ -54,10 +55,11 @@ void setup (void)
   
   pos = 0;             // Buffer de recpetion vide
   process_it = false;  //P Pas d'IT en cours
+  posco = 0;
+  console_process = false;
 
   // Ajout d'une IT sur SPI
   SPI.attachInterrupt();
-  SPI.setDataMode(SPI_MODE3);
   
   DmxSimple.usePin(3);        // DMX sur la broche 3
   DmxSimple.maxChannel(512);  // 512 canaux
@@ -69,13 +71,12 @@ void setup (void)
 ISR (SPI_STC_vect)
 {
   byte c = SPDR;  // Récupération de l'octet reçu 
-  //Serial.print(c);
   
   // Ajout de l'octet dans le buffer (si place dispo)
   if (pos < sizeof buf)
     {
     buf [pos++] = c;
-    Serial.println(c);
+    //Serial.println(c);
     
     // 0x00 suivi de 0x0A marque la fin de la trame
     if (c == '\n' && buf[pos - 2] == 0)
@@ -95,7 +96,13 @@ void loop (void)
       process_it = false; // Acquitement IT
       pos = 0;            // Buffer vidé
     }
-    
+
+   int i;
+
+   if (console_process) {
+    DmxSimple.write(channel, value);
+    console_process = false;
+   }
 }
 
 // Fonction de traitement de l'IT
@@ -170,21 +177,38 @@ int resolve_fctn(void) {
      tx_frame.oppcode = rx_frame.oppcode + 0x70;
      tx_frame.param = rx_frame.param;
      tx_frame.args[0] = 0x00;
-     tx_frame.len = 7;         
+     tx_frame.len = 7; 
+     
+     //send_response();          
  }
- 
- SPDR = 'U';
- 
- //send_response();  
+}
+
+// Fonction appellée par une IT interne
+void serialEvent() {
+  char oct = (char)Serial.read();
+  //Serial.println(oct);
+  
+  if(oct != 0xFFFFFFFE && !console_process) {
+    pos++;
+    Serial.println(oct, HEX);
+    if(pos == 7) {
+      channel = oct - 44;
+    }
+    if(pos == 8) {
+      value = oct * 2;
+    }
+  }
+
+  if(oct == 0xFFFFFFF7 && !console_process) {
+      console_process = true;
+      pos = 0;
+  }
 }
 
 void send_response(void) {
-  //SPI.begin();
-  Serial.println("========================");
-  Serial.println(SPI.transfer('U'));
-  Serial.println("========================");
+  SPI.begin();
   
-  /*tbuf[0] = tx_frame.addr;
+  tbuf[0] = tx_frame.addr;
   tbuf[1] = tx_frame.oppcode;
   tbuf[2] = (tx_frame.param & 0xFF00) >> 8;
   tbuf[3] = tx_frame.param & 0x00FF;
@@ -195,7 +219,7 @@ void send_response(void) {
   for(byte i = 0; i < tx_frame.len; i++) {
     Serial.println(tbuf[i], HEX);
     SPDR = byte(tbuf[i]);
-  }*/
+  }
   
-  //SPI.end();
+  SPI.end();
 }
