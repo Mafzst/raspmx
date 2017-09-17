@@ -41,7 +41,8 @@ int PIN = 2;
 // Fonction de paramétrage
 void setup (void)
 {
-  Serial.begin (115200);   // debugging
+  Serial.begin (9600);   // debugging
+  Serial.write("Setup OK");
 
   // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
@@ -56,6 +57,7 @@ void setup (void)
 
   // Ajout d'une IT sur SPI
   SPI.attachInterrupt();
+  SPI.setDataMode(SPI_MODE3);
   
   DmxSimple.usePin(3);        // DMX sur la broche 3
   DmxSimple.maxChannel(512);  // 512 canaux
@@ -67,12 +69,13 @@ void setup (void)
 ISR (SPI_STC_vect)
 {
   byte c = SPDR;  // Récupération de l'octet reçu 
+  //Serial.print(c);
   
   // Ajout de l'octet dans le buffer (si place dispo)
   if (pos < sizeof buf)
     {
     buf [pos++] = c;
-    //Serial.println(c);
+    Serial.println(c);
     
     // 0x00 suivi de 0x0A marque la fin de la trame
     if (c == '\n' && buf[pos - 2] == 0)
@@ -167,16 +170,21 @@ int resolve_fctn(void) {
      tx_frame.oppcode = rx_frame.oppcode + 0x70;
      tx_frame.param = rx_frame.param;
      tx_frame.args[0] = 0x00;
-     tx_frame.len = 7; 
-     
-     //send_response();          
+     tx_frame.len = 7;         
  }
+ 
+ SPDR = 'U';
+ 
+ //send_response();  
 }
 
 void send_response(void) {
-  SPI.begin();
+  //SPI.begin();
+  Serial.println("========================");
+  Serial.println(SPI.transfer('U'));
+  Serial.println("========================");
   
-  tbuf[0] = tx_frame.addr;
+  /*tbuf[0] = tx_frame.addr;
   tbuf[1] = tx_frame.oppcode;
   tbuf[2] = (tx_frame.param & 0xFF00) >> 8;
   tbuf[3] = tx_frame.param & 0x00FF;
@@ -187,7 +195,7 @@ void send_response(void) {
   for(byte i = 0; i < tx_frame.len; i++) {
     Serial.println(tbuf[i], HEX);
     SPDR = byte(tbuf[i]);
-  }
+  }*/
   
-  SPI.end();
+  //SPI.end();
 }
